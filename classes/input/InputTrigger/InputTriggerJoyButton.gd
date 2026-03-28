@@ -16,9 +16,11 @@ var _input_event: InputEventJoypadButton = InputEventJoypadButton.new()
 var _button: JoyButton = JOY_BUTTON_INVALID
 
 
-## Ready
-func _component_ready() -> void:
-	set_name("InputTriggerJoyKey")
+## init
+func _init(p_uuid: String = UUID.v4(), ...p_args: Array[Variant]) -> void:
+	super._init(p_uuid, p_uuid)
+	
+	set_uname("InputTriggerJoyKey")
 	_set_class_name("InputTriggerJoyKey")
 	
 	_settings.register_setting("InputTriggerJoyKey", Data.Type.INPUTEVENT, set_input_event, get_input_event, [button_changed])

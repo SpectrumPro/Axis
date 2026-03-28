@@ -40,9 +40,11 @@ var _alt_pressed: bool = false
 var _meta_pressed: bool = false
 
 
-## Ready
-func _component_ready() -> void:
-	set_name("InputTriggerKey")
+## init
+func _init(p_uuid: String = UUID.v4(), ...p_args: Array[Variant]) -> void:
+	super._init(p_uuid, p_args)
+	
+	set_uname("InputTriggerKey")
 	_set_class_name("InputTriggerKey")
 	
 	_settings.register_setting("InputTriggerKey", Data.Type.INPUTEVENT, set_input_event, get_input_event)

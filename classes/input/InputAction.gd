@@ -1,7 +1,7 @@
-# Copyright (c) 2024 Liam Sherwin, All rights reserved.
+# Copyright (c) 2026 Liam Sherwin, All rights reserved.
 # This file is part of the Spectrum Lighting Engine, licensed under the GPL v3.
 
-class_name InputAction extends VertexComponent
+class_name InputAction extends InputItem
 ## Combines inputs and control things
 
 

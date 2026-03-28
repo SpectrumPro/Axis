@@ -2,7 +2,7 @@
 # This file is part of the Spectrum Lighting Engine, licensed under the GPL v3.0 or later.
 # See the LICENSE file for details.
 
-class_name VertexComponent extends RefCounted
+class_name InputItem extends RefCounted
 ## Base class for all none GUI components
 
 
@@ -30,15 +30,16 @@ var _settings: SettingsManager
 
 
 ## init
-func _init(p_uuid: String = UUID.v4(), ...p_args: Array[Variant]) -> void:
+func _init(p_uuid: String = UUID.v4(), ..._p_args: Array[Variant]) -> void:
 	_uuid = p_uuid
-	_set_class_name("GlobalBaseClass")
+	set_uname("InputItem")
+	_set_class_name("InputItem")
 	
-	_settings.register_setting("Name", Data.Type.STRING, set_name, get_name, [name_changed])
+	_settings.register_setting("Name", Data.Type.STRING, set_uname, get_uname, [name_changed])
 
 
 ## Returns the user-defined name of this object.
-func get_name() -> String:
+func get_uname() -> String:
 	return _name
 
 
@@ -63,7 +64,7 @@ func get_settings() -> SettingsManager:
 
 
 ## Sets the name of this object. If p_no_signal is true, the name_changed signal is not emitted.
-func set_name(p_name: String, p_no_signal: bool = false) -> void:
+func set_uname(p_name: String, p_no_signal: bool = false) -> void:
 	_name = p_name
 	
 	if not p_no_signal:
@@ -87,7 +88,7 @@ func serialize(p_flags: Data.SerializationFlags) -> Dictionary[String, Variant]:
 
 ## Deserializes data either read from disk or returned by serialize().
 func deserialize(p_serialized_data: Dictionary, p_flags: Data.SerializationFlags) -> void:
-	set_name(type_convert(p_serialized_data.get("name", _name), TYPE_STRING), true)
+	set_uname(type_convert(p_serialized_data.get("name", _name), TYPE_STRING), true)
 	
 	if not p_flags & Data.SerializationFlags.NO_UUID:
 		_uuid = type_convert(p_serialized_data.get("uuid", _uuid), TYPE_STRING)
