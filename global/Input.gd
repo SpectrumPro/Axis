@@ -59,7 +59,6 @@ var _input_triggers_types: Dictionary[String, Script] = {
 
 func _ready() -> void:
 	OS.open_midi_inputs()
-	Core.resetting.connect(_reset)
 
 
 ## Called for every InputEvent
@@ -203,11 +202,6 @@ func _handle_midi_input(midi: InputEventMIDI) -> void:
 			MIDI_MESSAGE_CONTROL_CHANGE:
 				if midi.controller_number in _midi_controler_mappings[midi.channel]:
 					_midi_controler_mappings[midi.channel][midi.controller_number].value(midi.controller_value)
-
-
-## Handles the store mode action
-func _handle_store_mode_action() -> void:
-	Programmer.exit_store_mode() if Programmer.get_store_mode() else Programmer.enter_store_mode()
 
 
 ## Saves this ui to a dictionary
