@@ -1,9 +1,9 @@
-# Copyright (c) 2025 Liam Sherwin. All rights reserved.
+# Copyright (c) 2026 Liam Sherwin. All rights reserved.
 # This file is part of the Spectrum Lighting Controller, licensed under the GPL v3.0 or later.
 # See the LICENSE file for details.
 
-class_name SpectrumInputServer extends Node
-## Custom input manager for Spectrum
+class_name CoreInputServer extends Node
+## Handles inputs
 
 
 ## Called when an InputAction is added
@@ -56,9 +56,23 @@ var _input_triggers_types: Dictionary[String, Script] = {
 	"InputTriggerJoyKey": InputTriggerJoyKey,
 }
 
+## The SettingsManager for this InputServer
+var _settings: SettingsManager = SettingsManager.new()
 
+
+## init
+func _init() -> void:
+	_settings.set_owner(self)
+	_settings.set_inheritance_array(["CoreInputServer"])
+	
+	Config.load_config("res://InputConfig.gd")
+	_internal_actions.merge(Config.internal_actions)
+
+
+## ready
 func _ready() -> void:
-	OS.open_midi_inputs()
+	if Config.enable_midi:
+		OS.open_midi_inputs()
 
 
 ## Called for every InputEvent
@@ -187,6 +201,36 @@ func is_joy_button_allowed(button: JoyButton) -> bool:
 	return button not in _joy_button_block_list
 
 
+## Returns the SettingsManager for this InputServer
+func get_settings_manager() -> SettingsManager:
+	return _settings
+
+
+## Saves this ui to a dictionary
+func serialize(_p_flags: Data.SerializationFlags) -> Dictionary[String, Variant]:
+	var saved_input_actions: Array[Dictionary]
+	
+	for input_action: InputAction in _input_actions.get_left():
+		saved_input_actions.append(input_action.save())
+	
+	return {
+		"input_actions": saved_input_actions
+	}
+
+
+## Loads this ui from a dictionary
+func deserialize(p_serialized_data: Dictionary, _p_flags: Data.SerializationFlags) -> void:
+	var saved_input_actions: Array = type_convert(p_serialized_data.get("input_actions", []), TYPE_ARRAY)
+		
+	for saved_input_action: Variant in saved_input_actions:
+		if saved_input_action is Dictionary and saved_input_action.get("class") == "InputAction":
+			var input_action: InputAction = InputAction.new()
+			InputMap.add_action(type_convert(saved_input_action.get("uuid"), TYPE_STRING))
+			
+			input_action.load(saved_input_action)
+			add_input_action(input_action)
+
+
 ## Handles Midi input events
 func _handle_midi_input(midi: InputEventMIDI) -> void:
 	if midi.channel in _midi_pitch_mappings:
@@ -204,26 +248,26 @@ func _handle_midi_input(midi: InputEventMIDI) -> void:
 					_midi_controler_mappings[midi.channel][midi.controller_number].value(midi.controller_value)
 
 
-## Saves this ui to a dictionary
-func save() -> Dictionary:
-	var saved_input_actions: Array[Dictionary]
+## Stores config for InputServer
+class Config:
 	
-	for input_action: InputAction in _input_actions.get_left():
-		saved_input_actions.append(input_action.save())
+	## Array of action names and callables
+	static var internal_actions: Dictionary
 	
-	return {
-		"input_actions": saved_input_actions
-	}
-
-
-## Loads this ui from a dictionary
-func load(saved_data: Dictionary) -> void:
-	var saved_input_actions: Array = type_convert(saved_data.get("input_actions", []), TYPE_ARRAY)
+	## Enabled or disabled MIDI input
+	static var enable_midi: bool
+	
+	
+	## Loads config from a file
+	static func load_config(p_path: String) -> bool:
+		var script: Variant = load(p_path)
 		
-	for saved_input_action: Variant in saved_input_actions:
-		if saved_input_action is Dictionary and saved_input_action.get("class") == "InputAction":
-			var input_action: InputAction = InputAction.new()
-			InputMap.add_action(type_convert(saved_input_action.get("uuid"), TYPE_STRING))
-			
-			input_action.load(saved_input_action)
-			add_input_action(input_action)
+		if script is not GDScript or script.get("config") is not Dictionary:
+			return false
+		
+		var config: Dictionary = script.get("config")
+		
+		internal_actions = type_convert(config.get("internal_actions", internal_actions), TYPE_DICTIONARY)
+		enable_midi = type_convert(config.get("enable_midi", enable_midi), TYPE_BOOL)
+		
+		return true
