@@ -7,10 +7,10 @@ class_name InputItem extends RefCounted
 
 
 ## Emitted when the user-defined name of this object changes.
-signal name_changed()
+signal name_changed(new_name: String)
 
 ## Emitted when this object is to be deleted (freed from memory). 
-signal delete_requested()
+signal delete_requested(from: Object)
 
 
 ## The user-defined name of this object. The variable name can be arbitrary.
@@ -73,7 +73,7 @@ func set_uname(p_name: String, p_no_signal: bool = false) -> void:
 
 ## Emits the delete_requested signal to notify that this object should be deleted.
 func delete() -> void:
-	delete_requested.emit()
+	delete_requested.emit(self)
 
 
 ## Returns a JSON-compliant dictionary containing a serialized version of this object.
