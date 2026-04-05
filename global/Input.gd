@@ -64,13 +64,13 @@ var _settings: SettingsManager = SettingsManager.new()
 func _init() -> void:
 	_settings.set_owner(self)
 	_settings.set_inheritance_array(["CoreInputServer"])
-	
-	Config.load_config("res://InputConfig.gd")
-	_internal_actions.merge(Config.internal_actions)
 
 
 ## ready
 func _ready() -> void:
+	Config.load_config("res://InputConfig.gd")
+	_internal_actions.merge(Config.internal_actions)
+	
 	if Config.enable_midi:
 		OS.open_midi_inputs()
 
