@@ -2,7 +2,7 @@
 # This file is part of the Spectrum Lighting Controller, licensed under the GPL v3.0 or later.
 # See the LICENSE file for details.
 
-class_name CoreInputServer extends Node
+class_name CoreInputServer extends CoreGlobal
 ## Handles inputs
 
 
@@ -56,14 +56,11 @@ var _input_triggers_types: Dictionary[String, Script] = {
 	"InputTriggerJoyKey": InputTriggerJoyKey,
 }
 
-## The SettingsManager for this InputServer
-var _settings: SettingsManager = SettingsManager.new()
-
 
 ## init
-func _init() -> void:
-	_settings.set_owner(self)
-	_settings.set_inheritance_array(["CoreInputServer"])
+func _init(p_uuid: String = "", ...p_args: Array[Variant]) -> void:
+	super._init(p_uuid, p_args)
+	_set_class_name("CoreInputServer")
 
 
 ## ready
@@ -199,11 +196,6 @@ func is_key_allowed(key: Key) -> bool:
 ## Checks if a joybutton is allowed
 func is_joy_button_allowed(button: JoyButton) -> bool:
 	return button not in _joy_button_block_list
-
-
-## Returns the SettingsManager for this InputServer
-func get_settings_manager() -> SettingsManager:
-	return _settings
 
 
 ## Saves this ui to a dictionary
